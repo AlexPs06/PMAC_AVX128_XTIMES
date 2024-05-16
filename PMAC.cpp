@@ -36,8 +36,6 @@ static inline void AES_encrypt(__m128i tmp, __m128i *out,__m128i *key, unsigned 
 static void imprimiArreglo(int tam, unsigned char *in );
 static void shift_left(unsigned char *x);
 static void shift_right(unsigned char *x);
-// static inline __m128i double_block(__m128i bl);
-// static inline __m128i swap_if_le(__m128i b);
 void pmac_aes_init(unsigned char *K_1,unsigned tag_len);        
 static void PMAC(unsigned char *K_1, unsigned char *M, int size, unsigned char *T);
 block L[PRE_COMP_BLOCKS+1];     /* Precomputed L(i) values, L[0] = L */
@@ -69,7 +67,6 @@ int main(){
 
     pmac_aes_init(K_1,16);        
 
-    // PMAC(K_1, N, plaintext, 64, tag);
     PMAC(K_1, plaintext, test, tag);
 
     printf("\n");
@@ -119,23 +116,12 @@ static void PMAC(unsigned char *K_1, unsigned char *M, int size, unsigned char *
         checksum = _mm_xor_si128( L_inv ,checksum);        
     
     }else{
-        // imprimiArreglo(test,M);
-
         memcpy(tmp_2, M+((i-1)*16) , size_copy);
         int k=0;
-        
-        // for (int j = (i-1)*16; j < (i-1)*16+size_copy; j++)
-        // {
-        //     printf("%x", M[j]);
-        // }
-        
         tmp_2[size_copy]=0x80;
-        // imprimiArreglo(16,tmp_2);
 
         tmp = _mm_setzero_si128();
         tmp = _mm_load_si128((__m128i *)&tmp_2);
-        // imprimiArreglo(16,(unsigned char *)&checksum);
-        // imprimiArreglo(16,(unsigned char *)&tmp);
         checksum = _mm_xor_si128( tmp ,checksum); 
     }
     
@@ -265,10 +251,3 @@ shift_right(unsigned char *x)
 
 
 
-static inline __m128i double_block(__m128i bl) {
-		const __m128i mask = _mm_set_epi32(135,1,1,1);
-		__m128i tmp = _mm_srai_epi32(bl, 31);
-        tmp = _mm_and_si128(tmp, mask);
-        bl = _mm_slli_epi32(bl, 1);
-		return _mm_xor_si128(bl,tmp);
-	}
